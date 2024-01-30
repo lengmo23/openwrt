@@ -21,7 +21,8 @@ sed -i 's#downloads.openwrt.org#mirrors.cloud.tencent.com/openwrt#g' /etc/opkg/d
 #sed -i 's/http/https/g' /etc/opkg/distfeeds.conf
 sed -i "s/# //g" /etc/opkg/distfeeds.conf
 
-sed -i 's/root:::0:99999:7:::/root:$1$V4UetPzk$CYXluq4wUazHjmCDBCqXF.::0:99999:7:::/g' package/base-files/files/etc/shadow
+sed -i 's/root::0:0:99999:7:::/root:$1$V4UetPzk$CYXluq4wUazHjmCDBCqXF.:0:0:99999:7:::/g' /etc/shadow
+sed -i 's/root:::0:99999:7:::/root:$1$V4UetPzk$CYXluq4wUazHjmCDBCqXF.:0:0:99999:7:::/g' /etc/shadow
 
 uci set dhcp.lan.ra='server'
 uci set dhcp.lan.dhcpv6='server'
@@ -47,7 +48,7 @@ echo "DISTRIB_DESCRIPTION='OpenWrt 23.05'" >> /etc/openwrt_release
 rm -rf /usr/lib/lua/luci/view/admin_status/index
 #mv -f /usr/lib/lua/luci/view/admin_status/index /usr/lib/lua/luci/view/admin_status/index_backup 2>/dev/null
 
-sed -i 's#openwrt/luci#lienol/openwrt-luci#g' /usr/lib/lua/luci/view/themes/*/footer.htm
+#sed -i 's#openwrt/luci#lienol/openwrt-luci#g' /usr/lib/lua/luci/view/themes/*/footer.htm
 
 #禁用某些可能会自启动且用不上的依赖包服务
 /etc/init.d/php7-fastcgi disable 2>/dev/null

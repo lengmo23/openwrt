@@ -16,14 +16,17 @@ uci commit fstab
 
 ln -sf /sbin/ip /usr/bin/ip
 
+#修改国内源
 sed -i 's#downloads.openwrt.org#mirrors.cloud.tencent.com/openwrt#g' /etc/opkg/distfeeds.conf
 #sed -i 's/downloads.openwrt.org/openwrt.proxy.ustclug.org/g' /etc/opkg/distfeeds.conf
 #sed -i 's/http/https/g' /etc/opkg/distfeeds.conf
 sed -i "s/# //g" /etc/opkg/distfeeds.conf
 
+#修改密码
 sed -i 's/root::0:0:99999:7:::/root:$1$V4UetPzk$CYXluq4wUazHjmCDBCqXF.:0:0:99999:7:::/g' /etc/shadow
 sed -i 's/root:::0:99999:7:::/root:$1$V4UetPzk$CYXluq4wUazHjmCDBCqXF.:0:0:99999:7:::/g' /etc/shadow
 
+#修改DHCP
 uci set dhcp.lan.ra='server'
 uci set dhcp.lan.dhcpv6='server'
 uci set dhcp.lan.ra_management='1'
@@ -32,11 +35,13 @@ uci set dhcp.lan.ra_default='1'
 #uci set dhcp.@dnsmasq[0].nonwildcard=0
 uci commit dhcp
 
+#修改默认IP地址
 uci set network.lan.ipaddr='192.168.5.1'
 #uci set network.lan.netmask='255.255.255.0'
 uci set network.lan.ip6assign='64'
 uci commit network
 
+#打开WIFI
 sed -i '/option disabled/d' /etc/config/wireless
 sed -i '/set wireless.radio${devidx}.disabled/d' /lib/wifi/mac80211.sh
 wifi up
@@ -45,10 +50,14 @@ sed -i '/DISTRIB_DESCRIPTION/d' /etc/openwrt_release
 echo "DISTRIB_DESCRIPTION='OpenWrt 23.05'" >> /etc/openwrt_release
 
 # 删除状态页不需显示的
-rm -rf /usr/lib/lua/luci/view/admin_status/index
-#mv -f /usr/lib/lua/luci/view/admin_status/index /usr/lib/lua/luci/view/admin_status/index_backup 2>/dev/null
 
 
+#修改NTP
+uci add_list system.ntp.server='ntp.aliyun.com'
+uci add_list system.ntp.server='ntp.ustc.edu.cn'
+uci add_list system.ntp.server='cn.ntp.org.cn'
+uci add_list system.ntp.server='cn.pool.ntp.org'
+uci commit system
 
 #禁用某些可能会自启动且用不上的依赖包服务
 /etc/init.d/php7-fastcgi disable 2>/dev/null
@@ -64,5 +73,15 @@ rm -rf /usr/lib/lua/luci/view/admin_status/index
 chmod 0755 /etc/init.d/*
 
 rm -rf /tmp/luci-*cache
+
+# BBR关闭
+sed -i "s/option bbr_cca '1'/option bbr_cca '0'/" /etc/config/turboacc
+/etc/init.d/turboacc restart
+
+#修复Adguardhome
+rm -rf /etc/config/adguardhome
+rm -rf /etc/init.d/adguardhome
+rm -rf /etc/AdGuardHome.yaml
+
 
 exit 0
